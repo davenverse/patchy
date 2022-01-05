@@ -2,7 +2,7 @@ package io.chrisdavenport.patchy.decoding
 
 import cats.Apply
 import io.circe.{ Decoder, DecodingFailure, HCursor }
-import shapeless.{ :+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, Witness }
+import shapeless.{ :+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, Witness, Lazy }
 import shapeless.labelled.{ FieldType, field }
 
 /**
@@ -51,9 +51,9 @@ object ReprDecoder {
   implicit def decodeCoproduct[K <: Symbol, L, R <: Coproduct](implicit
     key: Witness.Aux[K],
     decodeL: Decoder[L],
-    decodeR: => ReprDecoder[R]
+    decodeR: Lazy[ReprDecoder[R]]
   ): ReprDecoder[FieldType[K, L] :+: R] = new ReprDecoder[FieldType[K, L] :+: R] {
-    private[this] lazy val cachedDecodeR: Decoder[R] = decodeR
+    private[this] lazy val cachedDecodeR: Decoder[R] = decodeR.value
 
     def apply(c: HCursor): Decoder.Result[FieldType[K, L] :+: R] =
       c.downField(key.value.name).focus match {
