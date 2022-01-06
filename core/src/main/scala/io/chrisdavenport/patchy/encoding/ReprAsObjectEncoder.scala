@@ -2,7 +2,7 @@ package io.chrisdavenport.patchy.encoding
 
 
 import io.circe.{ Encoder, JsonObject }
-import shapeless.{ :+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, Witness }
+import shapeless.{ :+:, ::, CNil, Coproduct, HList, HNil, Inl, Inr, Lazy, Witness }
 import shapeless.labelled.FieldType
 import io.chrisdavenport.patchy.Patched
 
@@ -31,9 +31,9 @@ object ReprAsObjectEncoder extends LowPriorityImplicits {
   implicit def encodeCoproductPatched[K <: Symbol, L, R <: Coproduct](implicit
     key: Witness.Aux[K],
     encodeL: Encoder[L],
-    encodeR: => ReprAsObjectEncoder[R]
+    encodeR: Lazy[ReprAsObjectEncoder[R]]
   ): ReprAsObjectEncoder[FieldType[K, Patched[L]] :+: R] = new ReprAsObjectEncoder[FieldType[K, Patched[L]] :+: R] {
-    private[this] lazy val cachedEncodeR: Encoder.AsObject[R] = encodeR
+    private[this] lazy val cachedEncodeR: Encoder.AsObject[R] = encodeR.value
 
     def encodeObject(a: FieldType[K, Patched[L]] :+: R): JsonObject = a match {
       case Inl(l) => Patched.encode(key.value.name, l).fold(JsonObject.empty){
@@ -71,9 +71,9 @@ private [encoding] trait LowPriorityImplicits {
   implicit def encodeCoproduct[K <: Symbol, L, R <: Coproduct](implicit
     key: Witness.Aux[K],
     encodeL: Encoder[L],
-    encodeR: => ReprAsObjectEncoder[R]
+    encodeR: Lazy[ReprAsObjectEncoder[R]]
   ): ReprAsObjectEncoder[FieldType[K, L] :+: R] = new ReprAsObjectEncoder[FieldType[K, L] :+: R] {
-    private[this] lazy val cachedEncodeR: Encoder.AsObject[R] = encodeR
+    private[this] lazy val cachedEncodeR: Encoder.AsObject[R] = encodeR.value
 
     def encodeObject(a: FieldType[K, L] :+: R): JsonObject = a match {
       case Inl(l) => JsonObject.singleton(key.value.name, encodeL(l))
