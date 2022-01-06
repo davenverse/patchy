@@ -1,7 +1,7 @@
 package io.chrisdavenport.patchy
 
 import munit.FunSuite
-import io.circe.Decoder
+import io.circe._
 import io.circe.parser._
 
 class PatchySpec extends FunSuite {
@@ -77,5 +77,35 @@ class PatchySpec extends FunSuite {
 
     assertEquals(test, Right(Zed(3, None)))
   }
+
+  test("Encode Ignored patched values correctly"){
+    case class Foo(foo: String, bar: Patched[String])
+    implicit val patched = Patchy.deriveFor[Foo].encoder
+    val init = Foo("bar", Patched.Ignore)
+    val out = patched(init)
+    val test = """{"foo":"bar"}"""
+    assertEquals(out.printWith(Printer.noSpaces), test)
+  }
+
+  test("Encode Removed patched values correctly"){
+    case class Foo(foo: String, bar: Patched[String])
+    implicit val patched = Patchy.deriveFor[Foo].encoder
+    val init = Foo("bar", Patched.Remove)
+    val out = patched(init)
+    val test = """{"foo":"bar","bar":null}"""
+    assertEquals(out.printWith(Printer.noSpaces), test)
+  }
+
+  test("Encode Replace patched values correctly"){
+    case class Foo(foo: String, bar: Patched[String])
+    implicit val patched = Patchy.deriveFor[Foo].encoder
+    val init = Foo("bar", Patched.Replace("baz"))
+    val out = patched(init)
+    val test = """{"foo":"bar","bar":"baz"}"""
+    assertEquals(out.printWith(Printer.noSpaces), test)
+  }
+
+
+
 
 }
