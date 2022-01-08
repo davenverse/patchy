@@ -2,6 +2,7 @@ package io.chrisdavenport.patchy.decoding
 
 import shapeless._
 import shapeless.labelled.{ FieldType, field }
+import io.chrisdavenport.patchy.Patched
 
 trait PatchWithOptions[R <: HList] {
   type Out <: HList
@@ -20,14 +21,14 @@ object PatchWithOptions extends LowPriorityImplicits {
 
   implicit final def hconsPatchWithOptionsOptions[K <: Symbol, V, T <: HList](implicit
     tailPatch: PatchWithOptions[T]
-  ): Aux[FieldType[K, Option[V]] :: T, FieldType[K, RemovalAware[V]] :: tailPatch.Out] =
+  ): Aux[FieldType[K, Option[V]] :: T, FieldType[K, Patched[V]] :: tailPatch.Out] =
     new PatchWithOptions[FieldType[K, Option[V]] :: T] {
-      final type Out = FieldType[K, RemovalAware[V]] :: tailPatch.Out
+      final type Out = FieldType[K, Patched[V]] :: tailPatch.Out
       final def apply(
         r: FieldType[K, Option[V]] :: T,
-        o: FieldType[K, RemovalAware[V]] :: tailPatch.Out
+        o: FieldType[K, Patched[V]] :: tailPatch.Out
       ): FieldType[K, Option[V]] :: T =
-        field[K](RemovalAware.combineOpt(r.head, o.head)) :: tailPatch(r.tail, o.tail)
+        field[K](Patched.combineOpt(r.head, o.head)) :: tailPatch(r.tail, o.tail)
     }
   
 }
@@ -38,15 +39,15 @@ trait LowPriorityImplicits {
   // Should be lower priority as Option should have higher specificity, but just in case.
   implicit final def hconsPatchWithOptions[K <: Symbol, V, T <: HList](implicit
     tailPatch: PatchWithOptions[T]
-  ): Aux[FieldType[K, V] :: T, FieldType[K, RemovalAware[V]] :: tailPatch.Out] =
+  ): Aux[FieldType[K, V] :: T, FieldType[K, Patched[V]] :: tailPatch.Out] =
     new PatchWithOptions[FieldType[K, V] :: T] {
-      final type Out = FieldType[K, RemovalAware[V]] :: tailPatch.Out
+      final type Out = FieldType[K, Patched[V]] :: tailPatch.Out
 
       final def apply(
         r: FieldType[K, V] :: T,
-        o: FieldType[K, RemovalAware[V]] :: tailPatch.Out
+        o: FieldType[K, Patched[V]] :: tailPatch.Out
       ): FieldType[K, V] :: T =
-        field[K](RemovalAware.combine(r.head, o.head)) :: tailPatch(r.tail, o.tail)
+        field[K](Patched.combine(r.head, o.head)) :: tailPatch(r.tail, o.tail)
     }
 
 }
