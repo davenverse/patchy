@@ -24,7 +24,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
 
     libraryDependencies ++= Seq(
       "io.circe"                    %%% "circe-core"                 % circeV,
-      "com.chuusai"                 %%% "shapeless"                  % "2.3.7",
+      "com.chuusai"                 %%% "shapeless"                  % "2.3.10",
       "io.circe"                    %%% "circe-parser"               % circeV % Test,
       "io.circe"                    %%% "circe-generic"              % circeV % Test,
       "org.typelevel"               %%% "munit-cats-effect-3"        % munitCatsEffectV         % Test,
