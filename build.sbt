@@ -2,7 +2,7 @@ import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 val Scala213 = "2.13.7"
 
-ThisBuild / crossScalaVersions := Seq("2.12.15", Scala213)
+ThisBuild / crossScalaVersions := Seq("2.12.17", Scala213)
 
 ThisBuild / testFrameworks += new TestFramework("munit.Framework")
 
