@@ -8,7 +8,7 @@ ThisBuild / testFrameworks += new TestFramework("munit.Framework")
 
 val circeV = "0.14.1"
 
-val munitCatsEffectV = "1.0.7"
+val munitCatsEffectV = "2.0.0"
 
 // Projects
 lazy val `patchy` = project.in(file("."))
@@ -27,7 +27,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
       "com.chuusai"                 %%% "shapeless"                  % "2.3.7",
       "io.circe"                    %%% "circe-parser"               % circeV % Test,
       "io.circe"                    %%% "circe-generic"              % circeV % Test,
-      "org.typelevel"               %%% "munit-cats-effect-3"        % munitCatsEffectV         % Test,
+      "org.typelevel"               %%% "munit-cats-effect"        % munitCatsEffectV         % Test,
     )
   ).jsSettings(
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule)},
