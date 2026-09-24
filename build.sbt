@@ -1,24 +1,51 @@
-import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
+ThisBuild / tlBaseVersion := "0.2" // current series x.y
 
-val Scala213 = "2.13.7"
+ThisBuild / organization := "io.chrisdavenport"
+ThisBuild / organizationName := "Christopher Davenport"
+ThisBuild / startYear := Some(2021)
+ThisBuild / licenses := Seq(License.MIT)
+ThisBuild / developers := List(
+  tlGitHubDev("christopherdavenport", "Christopher Davenport")
+)
 
-ThisBuild / crossScalaVersions := Seq("2.12.15", Scala213)
+// sbt-davenverse published a snapshot from main on every push; preserve that.
+ThisBuild / tlCiReleaseBranches := Seq("main")
+
+val Scala213 = "2.13.18"
+// Scala 2 only: shapeless 2.x has no Scala 3 build.
+ThisBuild / crossScalaVersions := Seq("2.12.20", Scala213)
+ThisBuild / scalaVersion := Scala213
 
 ThisBuild / testFrameworks += new TestFramework("munit.Framework")
 
 val circeV = "0.14.1"
-
 val munitCatsEffectV = "1.0.7"
 
+// Compiler settings DavenversePlugin injected globally. sbt-typelevel-ci-release
+// does not supply these (only sbt-typelevel-settings would).
+lazy val davenverseCompat = Seq(
+  libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, _)) =>
+      Seq(
+        compilerPlugin("org.typelevel" % "kind-projector" % "0.13.4" cross CrossVersion.full),
+        compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+      )
+    case _ => Nil
+  }),
+  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, _)) => Seq("-Ykind-projector")
+    case Some((2, 12)) => Seq("-Ypartial-unification")
+    case _ => Nil
+  })
+)
+
 // Projects
-lazy val `patchy` = project.in(file("."))
-  .disablePlugins(MimaPlugin)
-  .enablePlugins(NoPublishPlugin)
-  .aggregate(core.jvm, core.js)
+lazy val `patchy` = tlCrossRootProject.aggregate(core)
 
 lazy val core = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
   .in(file("core"))
+  .settings(davenverseCompat)
   .settings(
     name := "patchy",
 
@@ -34,12 +61,12 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
   )
 
 lazy val site = project.in(file("site"))
-  .disablePlugins(MimaPlugin)
-  .enablePlugins(DavenverseMicrositePlugin)
+  .enablePlugins(TypelevelSitePlugin)
   .dependsOn(core.jvm)
-  .settings{
-    import microsites._
-    Seq(
-      micrositeDescription := "Circe Patch Support",
-    )
-  }
+  .settings(
+    laikaTheme := tlSiteHelium.value.site
+      .topNavigationBar(
+        homeLink = laika.helium.config.IconLink.internal(laika.ast.Path.Root / "index.md", laika.helium.config.HeliumIcon.home)
+      )
+      .build
+  )
