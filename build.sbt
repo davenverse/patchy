@@ -8,8 +8,9 @@ ThisBuild / developers := List(
   tlGitHubDev("christopherdavenport", "Christopher Davenport")
 )
 
-// sbt-davenverse published a snapshot from main on every push; preserve that.
-ThisBuild / tlCiReleaseBranches := Seq("main")
+// sbt-davenverse published a snapshot from main on every push. Dropped: the
+// Central Portal will not enable snapshots for the io.chrisdavenport namespace.
+ThisBuild / tlCiReleaseBranches := Seq()
 
 val Scala213 = "2.13.18"
 // Scala 2 only: shapeless 2.x has no Scala 3 build.
