@@ -9,7 +9,7 @@ ThisBuild / developers := List(
 )
 
 // sbt-davenverse published a snapshot from main on every push; preserve that.
-ThisBuild / tlCiReleaseBranches := Seq("main")
+ThisBuild / tlCiReleaseBranches := Seq()
 
 val Scala213 = "2.13.18"
 // Scala 2 only: shapeless 2.x has no Scala 3 build.
