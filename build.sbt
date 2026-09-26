@@ -14,13 +14,13 @@ ThisBuild / tlCiReleaseBranches := Seq()
 
 val Scala213 = "2.13.18"
 // Scala 2 only: shapeless 2.x has no Scala 3 build.
-ThisBuild / crossScalaVersions := Seq("2.12.20", Scala213)
+ThisBuild / crossScalaVersions := Seq(Scala213)
 ThisBuild / scalaVersion := Scala213
 
 ThisBuild / testFrameworks += new TestFramework("munit.Framework")
 
 val circeV = "0.14.1"
-val munitCatsEffectV = "1.0.7"
+val munitCatsEffectV = "2.2.1"
 
 // Compiler settings DavenversePlugin injected globally. sbt-typelevel-ci-release
 // does not supply these (only sbt-typelevel-settings would).
@@ -55,7 +55,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
       "com.chuusai"                 %%% "shapeless"                  % "2.3.7",
       "io.circe"                    %%% "circe-parser"               % circeV % Test,
       "io.circe"                    %%% "circe-generic"              % circeV % Test,
-      "org.typelevel"               %%% "munit-cats-effect-3"        % munitCatsEffectV         % Test,
+      "org.typelevel"               %%% "munit-cats-effect"        % munitCatsEffectV         % Test,
     )
   ).jsSettings(
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule)},
